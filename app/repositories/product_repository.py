@@ -42,6 +42,7 @@ class ProductRepository:
         query = select(ProductModel).where(ProductModel.product_id == product_id)
         result = await self.db.execute(query)
         product = result.scalars().first()
+
         if not product:
             raise ProductNotFoundError(product_id=product_id)
         return product
@@ -50,6 +51,7 @@ class ProductRepository:
         query = select(ProductModel).where(func.lower(ProductModel.name) == product_name.lower())
         result = await self.db.execute(query)
         products = result.scalars().all()
+
         if not products:
             raise ProductNotFoundError(product_name=product_name)
         return products
@@ -66,6 +68,7 @@ class ProductRepository:
         query = select(ProductModel).where(ProductModel.product_id == product_id)
         result = await self.db.execute(query)
         existing_product = result.scalars().first()
+
         if not existing_product:
             raise ProductNotFoundError(product_id=product_id)
         for key, value in payload.dict().items():
@@ -81,7 +84,8 @@ class ProductRepository:
         existing_product = result.scalars().first()
         if not existing_product:
             raise ProductNotFoundError(product_id=product_id)
-        for key, value in payload.dict(exclude_unset = True).items():
+
+        for key, value in payload.dict(exclude_unset=True).items():
             setattr(existing_product, key, value)
 
         await self.db.commit()
