@@ -47,12 +47,31 @@ class OrderRepository:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found")
 
         product_id = payload.product_id
+
         query_product = select(ProductModel).where(ProductModel.product_id == product_id)
         product_result = await self.db.execute(query_product)
         product_existing = product_result.scalars().first()
+
+        stock = product_existing.stock
+        if int(stock) <= 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product out of stock.")
+
+        if payload.quantity >= int(stock):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"Only {stock} items left in stock, but you requested {payload.quantity}")
+
         price = product_existing.price
 
+        if existing_order.quantity > payload.quantity:
+            quantity = existing_order.quantity - payload.quantity
+            product_existing.stock = product_existing.stock + quantity
+
+        elif existing_order.quantity < payload.quantity:
+            quantity = payload.quantity - existing_order.quantity
+            product_existing.stock = product_existing.stock - quantity
+
         existing_order.total_price = price * payload.quantity
+        # product_existing.stock = product_existing.stock - payload.quantity
 
         for key, value in payload.dict().items():
             setattr(existing_order, key, value)
@@ -61,6 +80,7 @@ class OrderRepository:
         return existing_order
 
     async def partial_update(self, order_id: int, payload: PartialUpdateOrderSchema):
+
         query = select(OrderModel).where(OrderModel.order_id == order_id)
         result = await self.db.execute(query)
         existing_order = result.scalars().first()
@@ -76,6 +96,14 @@ class OrderRepository:
             price = product_existing.price
 
             if payload.quantity:
+                if existing_order.quantity > payload.quantity:
+                    quantity = existing_order.quantity - payload.quantity
+                    product_existing.stock = product_existing.stock + quantity
+
+                if existing_order.quantity < payload.quantity:
+                    quantity = payload.quantity - existing_order.quantity
+                    product_existing.stock = product_existing.stock - quantity
+
                 existing_order.total_price = price * payload.quantity
 
         for key, value in payload.dict(exclude_unset=True).items():
