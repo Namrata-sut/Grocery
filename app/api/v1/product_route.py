@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db_connection import get_db
-from app.core.security import get_current_user
+from app.core.security import get_current_user, admin_only
 from app.schemas.product_schema import ProductSchema, ProductUpdateSchema, ProductPartialUpdateSchema
 from app.services.product_service import ProductService
 
@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.post("/add_new_product")
 async def add_new_product(payload: ProductSchema, db: AsyncSession = Depends(get_db),
-                          token: str = Depends(get_current_user)):
+                          token: str = Depends(admin_only)):
     try:
         new_product = await ProductService.add(payload, db)
         return new_product
@@ -53,7 +53,7 @@ async def get_all_products(db: AsyncSession = Depends(get_db),
 
 @router.put("/update_existing_product/{product_id}")
 async def update_existing_product(product_id: int, payload: ProductUpdateSchema,
-                                  db: AsyncSession=Depends(get_db), token: str = Depends(get_current_user)):
+                                  db: AsyncSession=Depends(get_db), token: str = Depends(admin_only)):
     try:
         updated_product = await ProductService.update(product_id, payload, db)
         return updated_product
@@ -63,7 +63,7 @@ async def update_existing_product(product_id: int, payload: ProductUpdateSchema,
 
 @router.patch("/Partial_update_product/{product_id}")
 async def partial_update_product(product_id: int, payload: ProductPartialUpdateSchema,
-                                 db: AsyncSession=Depends(get_db), token: str = Depends(get_current_user)):
+                                 db: AsyncSession=Depends(get_db), token: str = Depends(admin_only)):
     try:
         updated_product = await ProductService.partial_update(product_id, payload, db)
         return updated_product
@@ -73,7 +73,7 @@ async def partial_update_product(product_id: int, payload: ProductPartialUpdateS
 
 @router.delete("/delete_existing_product/{product_id}")
 async def delete_existing_product(product_id: int, db: AsyncSession = Depends(get_db),
-                                  token: str = Depends(get_current_user)):
+                                  token: str = Depends(admin_only)):
     try:
         product_deleted = await ProductService.delete(product_id, db)
         return product_deleted

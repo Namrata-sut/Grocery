@@ -10,7 +10,7 @@ from starlette import status
 
 from app.schemas.user_schema import DataToken
 from app.core.db_connection import get_db
-from app.models.user_model import UserModel
+from app.models.user_model import UserModel, Role
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -71,3 +71,15 @@ async def get_current_user(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     return user
+
+
+async def admin_only(user_data=Depends(get_current_user)):
+    """"""
+    # try:
+    breakpoint()
+    if user_data.role != Role.admin:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized.")
+    return user_data
+    #
+    # except Exception as e:
+    #     return f"Error: {e}"
