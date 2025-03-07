@@ -11,9 +11,10 @@ config = context.config
 # Import models and Base metadata
 from app.models.order_model import OrderModel  # Ensure all models are imported
 from app.models.product_model import ProductModel  # Ensure all models are imported
+from app.models.user_model import UserModel  # Ensure all models are imported
 # from app.models.quiz_model import Quiz  # Ensure all models are imported
 # from app.models.score_model import Score  # Ensure all models are imported
-from app.db.db_connection import Base
+from app.core.db_connection import Base
 
 # Set up logging
 if config.config_file_name is not None:

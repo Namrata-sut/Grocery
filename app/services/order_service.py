@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.order_repository import OrderRepository
-from app.schemas.order_schema import OrderSchema, UpdateOrderSchema, PartialUpdateOrderSchema
+from app.schemas.order_schema import OrderSchema, PartialUpdateOrderSchema, UpdateOrderSchema
 
 
 class OrderService:

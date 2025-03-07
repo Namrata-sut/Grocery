@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float, Computed, func
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, func
 from app.core.db_connection import Base
+
 
 class OrderModel(Base):
     __tablename__ = "order_table"
