@@ -1,22 +1,23 @@
-from datetime import datetime, UTC, timedelta
+from datetime import UTC, datetime, timedelta
+
+import jwt
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
-import jwt
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.schemas.user_schema import DataToken
 from app.core.db_connection import get_db
-from app.models.user_model import UserModel, Role
+from app.models.user_model import Role, UserModel
+from app.schemas.user_schema import DataToken
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 40
-SECRETE_KEY = 'grocery_management_secrete'
-ALGORITHM = 'HS256'
+SECRETE_KEY = "grocery_management_secrete"
+ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 
@@ -50,8 +51,7 @@ def verify_access_token(token: str, cred_exception):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: AsyncSession = Depends(get_db)
+    token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ):
     """
     Retrieves the current authenticated user from the token in headers.
@@ -64,11 +64,15 @@ async def get_current_user(
     if not token_data:
         raise credentials_exception
 
-    user = await db.execute(select(UserModel).where(UserModel.email == token_data.email))
+    user = await db.execute(
+        select(UserModel).where(UserModel.email == token_data.email)
+    )
     user = user.scalars().first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return user
 
@@ -78,7 +82,9 @@ async def admin_only(user_data=Depends(get_current_user)):
     # try:
     breakpoint()
     if user_data.role != Role.admin:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not authorized."
+        )
     return user_data
     #
     # except Exception as e:

@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.user_schema import UserInputSchema
-from app.services.user_service import UserService
 from app.core.db_connection import get_db
 from app.core.security import hash_password
+from app.schemas.user_schema import UserInputSchema
+from app.services.user_service import UserService
 
 auth_router = APIRouter()
 
@@ -22,7 +22,9 @@ async def signup(payload: UserInputSchema, db: AsyncSession = Depends(get_db)):
 
 
 @auth_router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+async def login(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)
+):
     """Login endpoint that returns JWT token"""
     try:
         email = form_data.username

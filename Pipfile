@@ -4,21 +4,26 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = "*"
-uvicorn = "*"
-sqlalchemy = "*"
-psycopg2 = "*"
-pydantic = "*"
-asyncpg = "*"
-alembic = "*"
-aiofiles = "*"
-passlib = "*"
-bcrypt = "==3.2.2"
-pyjwt = "*"
+fastapi = "0.115.11"
+uvicorn = "0.34.0"
+sqlalchemy = "2.0.38"
+psycopg2 = "2.9.10"
+pydantic = "2.10.6"
+asyncpg = "0.30.0"
+alembic = "1.14.1"
+aiofiles = "24.1.0"
+passlib = "1.7.4"
+bcrypt = "3.2.2"
+pyjwt = "2.10.1"
 python-multipart = "*"
 python-jose = "*"
+httpx = "0.28.1"
+pytest = "8.3.5"
+pytest-asyncio = "0.25.3"
+pylint = "3.3.5"
 
 [dev-packages]
+pre-commit = "*"
 
 [requires]
 python_version = "3.12"

@@ -1,7 +1,8 @@
 from enum import Enum
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column
 from sqlalchemy import Enum as sqlEnum
+from sqlalchemy import Integer, String
 
 from app.core.db_connection import Base
 

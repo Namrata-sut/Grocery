@@ -1,7 +1,12 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.repositories.product_repository import ProductRepository
-from app.schemas.product_schema import ProductSchema, ProductUpdateSchema, ProductPartialUpdateSchema
+from app.schemas.product_schema import (
+    ProductPartialUpdateSchema,
+    ProductSchema,
+    ProductUpdateSchema,
+)
 
 
 class ProductNotFoundError(HTTPException):
@@ -49,7 +54,9 @@ class ProductService:
         return await product_obj.update(product_id, payload)
 
     @staticmethod
-    async def partial_update(product_id: int, payload: ProductPartialUpdateSchema, db: AsyncSession):
+    async def partial_update(
+        product_id: int, payload: ProductPartialUpdateSchema, db: AsyncSession
+    ):
         product_obj = ProductRepository(db)
         return await product_obj.partial_update(product_id, payload)
 

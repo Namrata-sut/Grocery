@@ -1,26 +1,27 @@
 import asyncio
 from logging.config import fileConfig
+
 import aiofiles
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import create_async_engine
+
 from alembic import context
 
 # Alembic Config object, providing access to the .ini file.
 config = context.config
 
+from app.core.db_connection import Base
+
 # Import models and Base metadata
 from app.models.order_model import OrderModel  # Ensure all models are imported
 from app.models.product_model import ProductModel  # Ensure all models are imported
 from app.models.user_model import UserModel  # Ensure all models are imported
-# from app.models.quiz_model import Quiz  # Ensure all models are imported
-# from app.models.score_model import Score  # Ensure all models are imported
-from app.core.db_connection import Base
 
 # Set up logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set target metadata for autogeneration
+# Set target metadata for autogenerate
 target_metadata = Base.metadata
 
 
@@ -34,7 +35,7 @@ async def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
-    async with aiofiles.open('migration.sql', 'w') as f:
+    async with aiofiles.open("migration.sql", "w") as f:
         with context.begin_transaction():
             context.run_migrations()
             await f.write("--migration script generated--\n")

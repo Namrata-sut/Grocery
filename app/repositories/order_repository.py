@@ -4,9 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.models.order_model import OrderModel
-from app.schemas.order_schema import OrderSchema, UpdateOrderSchema, PartialUpdateOrderSchema
-from app.services.product_service import ProductService
 from app.models.product_model import ProductModel
+from app.schemas.order_schema import (
+    OrderSchema,
+    PartialUpdateOrderSchema,
+    UpdateOrderSchema,
+)
+from app.services.product_service import ProductService
 
 
 class OrderRepository:
@@ -19,7 +23,7 @@ class OrderRepository:
             product_id=payload.product_id,
             quantity=payload.quantity,
             status=payload.status,
-            total_price=(payload.quantity * product.price)
+            total_price=(payload.quantity * product.price),
         )
         self.db.add(data)
         await self.db.commit()
@@ -31,7 +35,9 @@ class OrderRepository:
         result = await self.db.execute(query)
         order = result.scalars().first()
         if not order:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found"
+            )
         return order
 
     async def get_all(self):
@@ -44,21 +50,29 @@ class OrderRepository:
         result = await self.db.execute(query)
         existing_order = result.scalars().first()
         if not existing_order:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found"
+            )
 
         product_id = payload.product_id
 
-        query_product = select(ProductModel).where(ProductModel.product_id == product_id)
+        query_product = select(ProductModel).where(
+            ProductModel.product_id == product_id
+        )
         product_result = await self.db.execute(query_product)
         product_existing = product_result.scalars().first()
 
         stock = product_existing.stock
         if int(stock) <= 0:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product out of stock.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Product out of stock."
+            )
 
         if payload.quantity >= int(stock):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"Only {stock} items left in stock, but you requested {payload.quantity}")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Only {stock} items left in stock, but you requested {payload.quantity}",
+            )
 
         price = product_existing.price
 
@@ -85,12 +99,20 @@ class OrderRepository:
         result = await self.db.execute(query)
         existing_order = result.scalars().first()
         if not existing_order:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found"
+            )
 
-        product_id = payload.product_id if payload.product_id is not None else existing_order.product_id
+        product_id = (
+            payload.product_id
+            if payload.product_id is not None
+            else existing_order.product_id
+        )
 
         if product_id:
-            query_product = select(ProductModel).where(ProductModel.product_id == product_id)
+            query_product = select(ProductModel).where(
+                ProductModel.product_id == product_id
+            )
             product_result = await self.db.execute(query_product)
             product_existing = product_result.scalars().first()
             price = product_existing.price
@@ -117,7 +139,9 @@ class OrderRepository:
         result = await self.db.execute(query)
         existing_order = result.scalars().first()
         if not existing_order:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found.")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Order Not Found."
+            )
         await self.db.delete(existing_order)
         await self.db.commit()
         return "Order deleted."

@@ -17,8 +17,12 @@ class InventoryRepository:
         product_obj = ProductRepository(self.db)
         product = await product_obj.get_by_id(payload.product_id)
         if product.stock <= 0:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Product out of stock.")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Product out of stock."
+            )
         stock = product.stock - payload.quantity
         new_stock = ProductPartialUpdateSchema(stock=stock)
-        await product_obj.partial_update(product_id=payload.product_id, payload=new_stock)
+        await product_obj.partial_update(
+            product_id=payload.product_id, payload=new_stock
+        )
         return "Order Placed."

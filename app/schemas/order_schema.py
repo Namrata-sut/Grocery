@@ -1,6 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class OrderSchema(BaseModel):
@@ -12,13 +13,13 @@ class OrderSchema(BaseModel):
 
     @classmethod
     def from_orm(cls, order, product=None):
-        """ Manually compute total_price when converting SQLAlchemy model to Pydantic """
+        """Manually compute total_price when converting SQLAlchemy model to Pydantic"""
         return cls(
             product_id=order.product_id,
             quantity=order.quantity,
             status=order.status,
             ordered_date=order.ordered_date,
-            total_price=(order.quantity * product.price if product else 0.0)
+            total_price=(order.quantity * product.price if product else 0.0),
         )
 
     class Config:

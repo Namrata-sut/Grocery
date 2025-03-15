@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.v1 import auth
-from app.api.v1 import inventory_route
-from app.api.v1 import order_route, product_route
-from app.api.v1 import user_route
+from app.api.v1 import auth, inventory_route, order_route, product_route, user_route
 
 app = FastAPI(docs_url="/docs", redoc_url="/redoc", openapi_url="/openapi.json")
 

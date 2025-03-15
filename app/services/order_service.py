@@ -1,6 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.repositories.order_repository import OrderRepository
-from app.schemas.order_schema import OrderSchema, PartialUpdateOrderSchema, UpdateOrderSchema
+from app.schemas.order_schema import (
+    OrderSchema,
+    PartialUpdateOrderSchema,
+    UpdateOrderSchema,
+)
 
 
 class OrderService:
@@ -25,7 +30,9 @@ class OrderService:
         return await order_obj.update(order_id, payload)
 
     @staticmethod
-    async def partial_update(order_id: int, payload: PartialUpdateOrderSchema, db: AsyncSession):
+    async def partial_update(
+        order_id: int, payload: PartialUpdateOrderSchema, db: AsyncSession
+    ):
         order_obj = OrderRepository(db)
         return await order_obj.partial_update(order_id, payload)
 

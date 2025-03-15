@@ -1,8 +1,13 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.models.product_model import ProductModel
-from app.schemas.product_schema import ProductSchema, ProductUpdateSchema, ProductPartialUpdateSchema
+from app.schemas.product_schema import (
+    ProductPartialUpdateSchema,
+    ProductSchema,
+    ProductUpdateSchema,
+)
 
 
 class ProductNotFoundError(HTTPException):
@@ -28,11 +33,7 @@ class ProductRepository:
         self.db: AsyncSession = db
 
     async def add(self, payload: ProductSchema):
-        data = ProductModel(
-            name=payload.name,
-            price=payload.price,
-            stock=payload.stock
-        )
+        data = ProductModel(name=payload.name, price=payload.price, stock=payload.stock)
         self.db.add(data)
         await self.db.commit()
         await self.db.refresh(data)
@@ -48,7 +49,9 @@ class ProductRepository:
         return product
 
     async def get_by_name(self, product_name: str):
-        query = select(ProductModel).where(func.lower(ProductModel.name) == product_name.lower())
+        query = select(ProductModel).where(
+            func.lower(ProductModel.name) == product_name.lower()
+        )
         result = await self.db.execute(query)
         products = result.scalars().all()
 
@@ -78,7 +81,9 @@ class ProductRepository:
         await self.db.refresh(existing_product)
         return existing_product
 
-    async def partial_update(self, product_id: int, payload: ProductPartialUpdateSchema):
+    async def partial_update(
+        self, product_id: int, payload: ProductPartialUpdateSchema
+    ):
         query = select(ProductModel).where(ProductModel.product_id == product_id)
         result = await self.db.execute(query)
         existing_product = result.scalars().first()
@@ -101,7 +106,3 @@ class ProductRepository:
         await self.db.delete(product)
         await self.db.commit()
         return "product deleted"
-
-
-
-
