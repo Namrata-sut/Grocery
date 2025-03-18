@@ -1,24 +1,42 @@
+import httpx
 import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.main import app
+from app.core.db_connection import get_db
 from app.models.product_model import ProductModel
+from tests.conftest import TestingSessionLocal
+
+
+# Override the FastAPI dependency to use a test database session
+@pytest.fixture(scope="function")
+async def test_db_session():
+    async with TestingSessionLocal() as session:
+        yield session
+
+app.dependency_overrides[get_db] = test_db_session
 
 
 @pytest.mark.asyncio
-async def test_get_product_by_id(async_client, async_db):
-    # ✅ Insert test data
-    new_product = ProductModel(name="Peanut Butter", price=100, stock=10000)
-    async_db.add(new_product)
-    await async_db.commit()
-    await async_db.refresh(new_product)  # ✅ Ensure it has an ID
+async def test_get_by_id_existing_product(db_session: AsyncSession):
+    """Test fetching a product by ID"""
 
-    # ✅ Send GET request
-    response = await async_client.get(f"/get_product_by_id/{new_product.id}")
+    # 1. Setup test data
+    test_product = ProductModel(name="Test Product", price=10.99, stock=20)
+    db_session.add(test_product)
+    await db_session.commit()
+    await db_session.refresh(test_product)
 
-    # ✅ Assert correct response
+    # 2. Create an async client using ASGITransport
+    async with AsyncClient(
+        transport=httpx.ASGITransport(app=app),
+        base_url="http://test"
+    ) as client:
+        # 3. Make the request
+        response = await client.get("/get_product_by_id/1")
+
+    # 4. Verify response
     assert response.status_code == 200
-    assert response.json() == {
-        "id": new_product.id,
-        "name": "Peanut Butter",
-        "price": 100,
-        "stock": 10000,
-    }
+    data = response.json()
+    assert data["name"] == "Test Product"

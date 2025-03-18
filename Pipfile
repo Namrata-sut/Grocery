@@ -24,6 +24,9 @@ pylint = "3.3.5"
 
 [dev-packages]
 pre-commit = "*"
+pytest = "*"
+pytest-asyncio = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.12"
